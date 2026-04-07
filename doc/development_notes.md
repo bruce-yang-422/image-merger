@@ -144,6 +144,7 @@ image-merger/
 
 - `merge_config.yaml` 作為主要設定來源
 - `--config` 指定 YAML 設定檔
+- 命令列參數可覆蓋 YAML 設定檔中的同名欄位
 - `--input-dir` 指定輸入資料夾
 - `--output-dir` 指定輸出資料夾
 - `--output-name` 指定輸出名稱
@@ -153,6 +154,7 @@ image-merger/
 - `--padding` 外圍留白
 - `--background` 背景色
 - `--recursive` 遞迴搜尋圖片
+- `--no-recursive` 可在命令列強制關閉遞迴
 - 自動建立輸出資料夾
 - 依檔名排序輸入檔案
 
@@ -164,6 +166,8 @@ image-merger/
 - 尚未支援分段輸出
 - 尚未支援預覽
 - CLI 說明文字目前仍為英文，可在後續再本地化
+
+另外，`python cli.py --help` 現在也依賴 `PyYAML` 已安裝，因為 CLI 啟動時會先載入 YAML 模組。
 
 ## 5. 依賴與環境
 

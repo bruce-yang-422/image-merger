@@ -140,7 +140,7 @@ pip install -r requirements.txt
 python cli.py
 ```
 
-這種方式比較適合非技術使用者，因為不需要記一長串參數。
+這種方式比較適合非技術使用者，因為不需要記一長串參數。命令列參數若有提供，會覆蓋設定檔中的同名欄位。
 
 ### 命令列範例
 
@@ -174,6 +174,7 @@ python cli.py --input-dir ./input --output-dir ./output --output-name product_sh
 - `--padding`：外圍留白
 - `--background`：背景色，例如 `#ffffff`
 - `--recursive`：遞迴搜尋子資料夾圖片
+- `--no-recursive`：即使設定檔開啟遞迴，也強制只讀取輸入資料夾當層
 
 ## 開發重點
 
