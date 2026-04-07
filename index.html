@@ -7,233 +7,287 @@
     <meta name="description" content="免費線上圖片合併工具，支援垂直、水平、Grid 拼接，可設定輸出寬度、DPI、圓角、背景色，輸出 JPG / PNG / WebP。適合電商產品圖、SaaS 截圖、設計稿交付。" />
     <meta name="keywords" content="圖片合併,圖片拼接,merge images,image stitcher,電商圖片,產品圖合併,長圖製作,JPG合併,PNG合併,WebP,線上工具,免費,GitHub Pages,image merger online" />
     <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://image-merger.stack-base.com/" />
     <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://image-merger.stack-base.com/" />
     <meta property="og:title" content="Image Merger — 免費線上圖片合併工具" />
     <meta property="og:description" content="免費在瀏覽器中合併多張圖片，支援垂直 / 水平 / Grid 排列，一鍵下載，無需安裝。" />
+    <meta property="og:site_name" content="Image Merger" />
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="Image Merger — 免費線上圖片合併工具" />
     <meta name="twitter:description" content="免費在瀏覽器中合併多張圖片，支援垂直 / 水平 / Grid 排列，一鍵下載，無需安裝。" />
+    <link rel="icon" href="./assets/brand/favicon.ico" sizes="any" />
+    <link rel="shortcut icon" href="./assets/brand/favicon.ico" />
+    <link rel="apple-touch-icon" href="./assets/brand/logo-light.svg" />
     <link rel="stylesheet" href="./assets/css/style.css" />
     <link rel="stylesheet" href="./assets/css/themes.css" />
   </head>
   <body data-theme-choice="system" data-color-scheme="dark">
     <main class="page">
-
-      <!-- Header -->
-      <header class="hero">
-        <div class="hero-topbar">
-          <div>
-            <p class="eyebrow">Pure Frontend · GitHub Pages</p>
-            <h1>Image Merger</h1>
+      <header class="app-header">
+        <div class="app-brand">
+          <div class="brand-mark">
+            <img src="./assets/brand/logo-light.svg" alt="Image Merger Logo" class="brand-mark-image brand-mark-image-light" />
+            <img src="./assets/brand/logo-dark.svg" alt="Image Merger Logo" class="brand-mark-image brand-mark-image-dark" />
           </div>
-          <div class="theme-switcher" aria-label="主題選擇">
-            <button type="button" class="theme-chip active" data-theme-choice="system">
-              <span class="theme-chip-en">System</span>
-              <span class="theme-chip-zh">跟隨系統</span>
-            </button>
-            <button type="button" class="theme-chip" data-theme-choice="light">
-              <span class="theme-chip-en">Light</span>
-              <span class="theme-chip-zh">淺色</span>
-            </button>
-            <button type="button" class="theme-chip" data-theme-choice="dark">
-              <span class="theme-chip-en">Dark</span>
-              <span class="theme-chip-zh">深色</span>
-            </button>
+          <div>
+            <p class="eyebrow">Pure Frontend · Online Tool</p>
+            <h1>Image Merger</h1>
+            <p class="intro">上傳多張圖片，排序後直接在瀏覽器完成合成、預覽與下載。</p>
           </div>
         </div>
-        <p class="intro">上傳多張圖片，設定排列、輸出與背景，直接在瀏覽器完成合成與下載。</p>
+        <div class="theme-switcher" aria-label="主題選擇">
+          <button type="button" class="theme-chip active" data-theme-choice="system">
+            <span class="theme-chip-en">System</span>
+            <span class="theme-chip-zh">跟隨系統</span>
+          </button>
+          <button type="button" class="theme-chip" data-theme-choice="light">
+            <span class="theme-chip-en">Light</span>
+            <span class="theme-chip-zh">淺色</span>
+          </button>
+          <button type="button" class="theme-chip" data-theme-choice="dark">
+            <span class="theme-chip-en">Dark</span>
+            <span class="theme-chip-zh">深色</span>
+          </button>
+        </div>
       </header>
 
-      <!-- Upload zone -->
-      <section class="panel" id="upload-zone">
-        <div class="drop-area" id="drop-area">
-          <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="16 16 12 12 8 16"></polyline>
-            <line x1="12" y1="12" x2="12" y2="21"></line>
-            <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"></path>
-          </svg>
-          <p>拖曳圖片至此，或 <label for="file-input" class="link-label">點擊選擇檔案</label></p>
-          <p class="hint">支援 JPG、PNG、WebP，最多 50 張</p>
-          <input type="file" id="file-input" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" multiple hidden />
-        </div>
-      </section>
-
-      <!-- Image list -->
-      <section class="panel" id="image-list-panel" hidden>
-        <div class="panel-header">
-          <h2 class="panel-title">已選圖片 <span class="badge" id="image-count">0</span></h2>
-          <div class="header-actions">
-            <button type="button" id="sort-btn" class="btn-ghost">依檔名排序</button>
-            <button type="button" id="clear-btn" class="btn-ghost btn-danger">全部清除</button>
-          </div>
-        </div>
-        <ul class="image-list" id="image-list"></ul>
-      </section>
-
-      <section class="workspace">
-        <div class="workspace-main">
-          <!-- Settings -->
-          <section class="panel settings-panel">
+      <section class="app-shell">
+        <aside class="panel settings-panel">
+          <div class="panel-header panel-header-tight">
             <h2 class="panel-title">設定</h2>
+            <span class="panel-kicker">調整輸出規格</span>
+          </div>
 
-            <!-- A. Layout -->
-            <div class="setting-group">
-              <h3 class="group-title">排列方式</h3>
-              <div class="setting-grid settings-grid-layout">
-                <label class="field field-compact">
-                  <span class="field-label">方向</span>
-                  <select id="direction">
-                    <option value="vertical">垂直（直向）</option>
-                    <option value="horizontal">水平（橫向）</option>
-                    <option value="grid">Grid（方格）</option>
-                  </select>
-                </label>
-                <label class="field field-compact" id="grid-cols-field" hidden>
-                  <span class="field-label">Grid 欄數</span>
-                  <input type="number" id="grid-cols" min="1" max="10" value="3" />
-                </label>
-                <div class="field field-wide">
-                  <span class="field-label" id="size-label">輸出寬度（px）</span>
-                  <div class="preset-row">
-                    <button type="button" class="preset-btn active" data-size="auto">Auto</button>
-                    <button type="button" class="preset-btn" data-size="500">500</button>
-                    <button type="button" class="preset-btn" data-size="750">750</button>
-                    <button type="button" class="preset-btn" data-size="800">800</button>
-                    <button type="button" class="preset-btn" data-size="1000">1000</button>
-                    <input type="number" id="size-custom" min="100" max="10000" placeholder="自訂" class="num-mini" />
-                  </div>
+          <div class="setting-group first-group">
+            <h3 class="group-title">拼接設定</h3>
+            <div class="setting-grid settings-grid-layout">
+              <div class="field direction-field">
+                <span class="field-label">方向</span>
+                <div class="direction-group" aria-label="拼接方向">
+                  <button type="button" class="direction-btn active" data-direction="vertical">
+                    <span class="direction-icon">↕</span>
+                    <span class="direction-text">直向</span>
+                  </button>
+                  <button type="button" class="direction-btn" data-direction="horizontal">
+                    <span class="direction-icon">↔</span>
+                    <span class="direction-text">橫向</span>
+                  </button>
+                  <button type="button" class="direction-btn" data-direction="grid">
+                    <span class="direction-icon">⌗</span>
+                    <span class="direction-text">網格</span>
+                  </button>
                 </div>
-                <label class="field field-slider">
-                  <span class="field-label">間距（px）</span>
-                  <div class="slider-row">
-                    <input type="range" id="spacing-range" min="0" max="100" value="0" />
-                    <input type="number" id="spacing-num" min="0" max="100" value="0" class="num-mini" />
-                  </div>
-                </label>
+                <select id="direction" class="visually-hidden" aria-hidden="true" tabindex="-1">
+                  <option value="vertical">垂直（直向）</option>
+                  <option value="horizontal">水平（橫向）</option>
+                  <option value="grid">Grid（方格）</option>
+                </select>
               </div>
-            </div>
-
-            <!-- B. Output -->
-            <div class="setting-group">
-              <h3 class="group-title">輸出設定</h3>
-              <div class="setting-grid settings-grid-output">
-                <label class="field field-compact">
-                  <span class="field-label">格式</span>
-                  <select id="format">
-                    <option value="jpg">JPG（預設）</option>
-                    <option value="png">PNG</option>
-                    <option value="webp">WebP</option>
-                  </select>
-                </label>
-                <label class="field field-slider" id="quality-field">
-                  <span class="field-label">品質</span>
-                  <div class="slider-row">
-                    <input type="range" id="quality-range" min="60" max="100" value="90" />
-                    <input type="number" id="quality-num" min="60" max="100" value="90" class="num-mini" />
-                  </div>
-                </label>
-                <div class="field field-wide">
-                  <span class="field-label">圓角（px）</span>
-                  <div class="preset-row">
-                    <button type="button" class="preset-btn corner-btn active" data-corner="0">無</button>
-                    <button type="button" class="preset-btn corner-btn" data-corner="8">8</button>
-                    <button type="button" class="preset-btn corner-btn" data-corner="16">16</button>
-                    <button type="button" class="preset-btn corner-btn" data-corner="24">24</button>
-                    <button type="button" class="preset-btn corner-btn" data-corner="40">40</button>
-                    <input type="number" id="corner-custom" min="0" max="500" placeholder="自訂" class="num-mini" />
-                  </div>
-                </div>
-                <div class="field bg-field">
-                  <span class="field-label">背景色</span>
-                  <div class="bg-picker">
-                    <div class="bg-presets" aria-label="常用背景色">
-                      <button type="button" class="swatch active" data-color="#ffffff" style="background:#ffffff" title="白色"></button>
-                      <button type="button" class="swatch" data-color="#f4f4f4" style="background:#f4f4f4" title="淺灰"></button>
-                      <button type="button" class="swatch" data-color="#161616" style="background:#161616" title="黑色"></button>
-                      <button type="button" class="swatch" data-color="#f5df4d" style="background:#f5df4d" title="亮黃色"></button>
-                      <button type="button" class="swatch" data-color="#939597" style="background:#939597" title="高級灰"></button>
-                      <button type="button" class="swatch" data-color="#f7cac9" style="background:#f7cac9" title="玫瑰粉"></button>
-                      <button type="button" class="swatch" data-color="#45b8ac" style="background:#45b8ac" title="湖水綠"></button>
-                    </div>
-                    <div class="bg-custom-row">
-                      <label class="color-picker-shell" for="bg-color">
-                        <span class="color-picker-label">自訂色</span>
-                        <input type="color" id="bg-color" value="#ffffff" title="自訂背景色" />
-                      </label>
-                      <input type="text" id="bg-color-text" value="#ffffff" placeholder="#RRGGBB 或 rgb(r, g, b)" class="color-text-input" spellcheck="false" autocomplete="off" />
-                    </div>
-                  </div>
+              <label class="field field-compact" id="grid-cols-field" hidden>
+                <span class="field-label">Grid 欄數</span>
+                <input type="number" id="grid-cols" min="1" max="10" value="3" />
+              </label>
+              <div class="field field-wide">
+                <span class="field-label" id="size-label">輸出寬度（px）</span>
+                <div class="preset-row">
+                  <button type="button" class="preset-btn active" data-size="auto">Auto</button>
+                  <button type="button" class="preset-btn" data-size="500">500</button>
+                  <button type="button" class="preset-btn" data-size="750">750</button>
+                  <button type="button" class="preset-btn" data-size="800">800</button>
+                  <button type="button" class="preset-btn" data-size="1000">1000</button>
+                  <input type="number" id="size-custom" min="100" max="10000" placeholder="自訂" class="num-mini" />
                 </div>
               </div>
             </div>
+          </div>
 
-            <!-- C. DPI -->
-            <div class="setting-group">
-              <h3 class="group-title">DPI 設定</h3>
-              <div class="setting-grid">
-                <div class="field">
-                  <span class="field-label">解析度</span>
-                  <div class="dpi-row">
-                    <button type="button" class="dpi-btn" data-dpi="72">72</button>
-                    <button type="button" class="dpi-btn active" data-dpi="96">96</button>
-                    <button type="button" class="dpi-btn" data-dpi="150">150</button>
-                    <button type="button" class="dpi-btn" data-dpi="300">300</button>
-                    <input type="number" id="dpi-custom" min="30" max="1200" placeholder="自訂" class="num-mini" />
-                  </div>
+          <div class="setting-group">
+            <h3 class="group-title">輸出設定</h3>
+            <div class="setting-grid settings-grid-output">
+              <label class="field field-compact format-field">
+                <span class="field-label">格式</span>
+                <select id="format">
+                  <option value="jpg">JPG（預設）</option>
+                  <option value="png">PNG</option>
+                  <option value="webp">WebP</option>
+                </select>
+              </label>
+              <label class="field field-slider quality-slider-field" id="quality-field">
+                <span class="field-label">品質</span>
+                <div class="slider-row">
+                  <input type="range" id="quality-range" min="60" max="100" value="90" />
+                  <input type="number" id="quality-num" min="60" max="100" value="90" class="num-mini" />
                 </div>
-                <div class="field">
-                  <span class="field-label">實體尺寸</span>
-                  <span class="field-value" id="physical-size">—</span>
+              </label>
+              <div class="field field-wide">
+                <span class="field-label">每張圖片圓角（px）</span>
+                <div class="preset-row">
+                  <button type="button" class="preset-btn corner-btn active" data-corner="0">無</button>
+                  <button type="button" class="preset-btn corner-btn" data-corner="8">8</button>
+                  <button type="button" class="preset-btn corner-btn" data-corner="16">16</button>
+                  <button type="button" class="preset-btn corner-btn" data-corner="24">24</button>
+                  <button type="button" class="preset-btn corner-btn" data-corner="40">40</button>
+                  <input type="number" id="corner-custom" min="0" max="500" placeholder="自訂" class="num-mini num-mini-wide" />
                 </div>
               </div>
-            </div>
-
-            <!-- D. Segmented output -->
-            <div class="setting-group">
-              <h3 class="group-title">分段輸出</h3>
-              <div class="setting-grid">
-                <div class="field">
-                  <div class="toggle-row">
-                    <span class="field-label">自動分段</span>
-                    <label class="toggle">
-                      <input type="checkbox" id="auto-segment" />
-                      <span class="toggle-track"></span>
+              <label class="field field-slider">
+                <span class="field-label">間距（px）</span>
+                <div class="slider-row">
+                  <input type="range" id="spacing-range" min="0" max="100" value="0" />
+                  <input type="number" id="spacing-num" min="0" max="100" value="0" class="num-mini" />
+                </div>
+              </label>
+              <div class="field bg-field">
+                <span class="field-label">背景色</span>
+                <div class="bg-picker">
+                  <div class="bg-presets" aria-label="常用背景色">
+                    <button type="button" class="swatch active" data-color="#ffffff" style="background:#ffffff" title="白色"></button>
+                    <button type="button" class="swatch" data-color="#f4f4f4" style="background:#f4f4f4" title="淺灰"></button>
+                    <button type="button" class="swatch" data-color="#161616" style="background:#161616" title="黑色"></button>
+                    <button type="button" class="swatch" data-color="#f5df4d" style="background:#f5df4d" title="亮黃色"></button>
+                    <button type="button" class="swatch" data-color="#939597" style="background:#939597" title="高級灰"></button>
+                    <button type="button" class="swatch" data-color="#f7cac9" style="background:#f7cac9" title="玫瑰粉"></button>
+                    <button type="button" class="swatch" data-color="#45b8ac" style="background:#45b8ac" title="湖水綠"></button>
+                  </div>
+                  <div class="bg-custom-row">
+                    <label class="color-picker-shell" for="bg-color">
+                      <span class="color-picker-label">自訂色</span>
+                      <input type="color" id="bg-color" value="#ffffff" title="自訂背景色" />
                     </label>
+                    <input type="text" id="bg-color-text" value="#ffffff" placeholder="#RRGGBB 或 rgb(r, g, b)" class="color-text-input" spellcheck="false" autocomplete="off" />
                   </div>
-                  <p class="field-hint">高度超過閾值時自動切段輸出</p>
                 </div>
-                <label class="field">
-                  <span class="field-label">最大高度（px）</span>
-                  <input type="number" id="max-height" min="1000" max="16000" value="10000" />
-                </label>
               </div>
+            </div>
+          </div>
+
+          <div class="setting-group">
+            <h3 class="group-title">DPI 設定</h3>
+            <div class="setting-grid utility-grid">
+              <div class="field">
+                <span class="field-label">解析度</span>
+                <select id="dpi-select">
+                  <option value="72">72 DPI</option>
+                  <option value="96" selected>96 DPI</option>
+                  <option value="150">150 DPI</option>
+                  <option value="300">300 DPI</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="setting-group last-group">
+            <h3 class="group-title"><span class="group-title-icon" aria-hidden="true">✂</span>分段輸出</h3>
+            <div class="setting-grid utility-grid">
+              <div class="field">
+                <div class="toggle-row">
+                  <span class="field-label">自動分段</span>
+                  <label class="toggle">
+                    <input type="checkbox" id="auto-segment" />
+                    <span class="toggle-track"></span>
+                  </label>
+                </div>
+                <p class="field-hint">高度超過閾值時自動切段輸出</p>
+              </div>
+              <label class="field">
+                <span class="field-label">最大高度（px）</span>
+                <input type="number" id="max-height" min="1000" max="16000" value="10000" />
+              </label>
+              <div class="field segment-mode-field">
+                <span class="field-label">切段方式</span>
+                <div class="segment-mode-group" aria-label="切段方式">
+                  <button type="button" class="segment-mode-btn active" data-segment-mode="strict">
+                    <span class="segment-mode-title">固定切段</span>
+                  </button>
+                  <button type="button" class="segment-mode-btn" data-segment-mode="preserve">
+                    <span class="segment-mode-title">保留整圖</span>
+                  </button>
+                </div>
+                <p class="field-hint">固定切段會直接依高度切開，保留整圖會從下一張開始分段。</p>
+                <input type="hidden" id="segment-mode" value="strict" />
+              </div>
+            </div>
+          </div>
+        </aside>
+
+        <section class="panel library-panel">
+          <div class="panel-header panel-header-tight">
+            <h2 class="panel-title">圖片清單</h2>
+            <span class="panel-kicker">上傳與排序</span>
+          </div>
+
+          <section class="upload-panel" id="upload-zone">
+            <div class="drop-area" id="drop-area">
+              <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="16 16 12 12 8 16"></polyline>
+                <line x1="12" y1="12" x2="12" y2="21"></line>
+                <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"></path>
+              </svg>
+              <p>拖曳圖片至此，或 <label for="file-input" class="link-label">點擊選擇檔案</label></p>
+              <p class="hint">支援 JPG、PNG、WebP，最多 50 張</p>
+              <input type="file" id="file-input" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" multiple hidden />
             </div>
           </section>
-        </div>
 
-        <aside class="workspace-preview">
-          <!-- Preview -->
-          <section class="panel" id="preview-panel">
-            <div class="panel-header">
-              <h2 class="panel-title">預覽</h2>
-              <span class="field-value" id="preview-meta">—</span>
+          <section class="image-list-card" id="image-list-panel" hidden>
+            <div class="panel-header list-toolbar">
+              <h2 class="panel-title">已選圖片 <span class="badge" id="image-count">0</span></h2>
+              <div class="header-actions">
+                <button type="button" id="sort-btn" class="btn-ghost">依檔名排序</button>
+                <button type="button" id="clear-btn" class="btn-ghost btn-danger">全部清除</button>
+              </div>
             </div>
-            <div class="warning-banner" id="warning-banner" hidden></div>
-            <div class="preview-stage">
-              <div class="preview-stage-inner">
-                <canvas id="preview-canvas"></canvas>
+            <ul class="image-list" id="image-list"></ul>
+          </section>
+        </section>
+
+        <section class="panel preview-panel" id="preview-panel">
+          <div class="panel-header panel-header-tight">
+            <div>
+              <h2 class="panel-title">預覽</h2>
+              <p class="preview-caption">即時檢查合成尺寸與輸出狀態</p>
+            </div>
+            <span class="field-value" id="preview-meta">—</span>
+          </div>
+          <div class="preview-toolbar">
+            <span class="field-label">預覽模式</span>
+            <div class="preview-mode-group" aria-label="預覽模式">
+              <button type="button" class="preview-mode-btn active" data-preview-mode="fill">滿寬預覽</button>
+              <button type="button" class="preview-mode-btn" data-preview-mode="contain">完整置中</button>
+            </div>
+            <input type="hidden" id="preview-mode" value="fill" />
+          </div>
+          <div class="warning-banner" id="warning-banner" hidden></div>
+          <div class="preview-stage">
+            <div class="preview-stage-inner preview-mode-fill" id="preview-stage-inner">
+              <canvas id="preview-canvas"></canvas>
+            </div>
+          </div>
+          <div class="preview-footer">
+            <div class="preview-stats">
+              <div class="preview-stat">
+                <span class="preview-stat-label">總尺寸（像素）</span>
+                <span class="preview-stat-value" id="preview-size-px">0 × 0 px</span>
+              </div>
+              <div class="preview-stat">
+                <span class="preview-stat-label">實體尺寸（公分）</span>
+                <span class="preview-stat-value" id="physical-size">0 × 0 cm</span>
+              </div>
+              <div class="preview-stat">
+                <span class="preview-stat-label">分段數量</span>
+                <span class="preview-stat-value" id="preview-chunk-count">1</span>
               </div>
             </div>
             <div class="action-bar">
               <button type="button" id="merge-btn" class="btn-primary" disabled>合成圖片</button>
               <button type="button" id="download-btn" class="btn-secondary" disabled>下載圖片</button>
             </div>
-            <p class="status-bar" id="status-bar" aria-live="polite"></p>
-          </section>
-        </aside>
+          </div>
+          <p class="status-bar" id="status-bar" aria-live="polite"></p>
+        </section>
       </section>
-
     </main>
-    <script src="./assets/js/app.js"></script>
+    <script type="module" src="./assets/js/app.js"></script>
   </body>
 </html>

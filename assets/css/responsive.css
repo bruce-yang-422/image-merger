@@ -1,0 +1,120 @@
+﻿@media (max-width: 1360px) {
+  .app-shell {
+    grid-template-columns: 320px 320px minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 1180px) {
+  .page {
+    max-height: none;
+  }
+
+  .app-shell {
+    grid-template-columns: 1fr;
+    height: auto;
+    max-height: none;
+  }
+
+  .settings-panel,
+  .library-panel,
+  .preview-panel {
+    height: auto;
+  }
+
+  .image-list {
+    max-height: 320px;
+  }
+}
+
+@media (max-width: 720px) {
+  .page {
+    width: calc(100% - 16px);
+    padding: 8px;
+  }
+
+  .app-header {
+    flex-direction: column;
+    align-items: stretch;
+    padding-bottom: 12px;
+  }
+
+  .app-brand {
+    align-items: flex-start;
+  }
+
+  .theme-switcher {
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .theme-chip {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .panel {
+    padding: 16px;
+    border-radius: 22px;
+  }
+
+  .setting-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .field,
+  .field-compact,
+  .field-wide,
+  .field-slider,
+  .direction-field,
+  .format-field,
+  .quality-slider-field,
+  .bg-field,
+  .utility-grid .field {
+    grid-column: auto;
+  }
+
+  .direction-group {
+    grid-template-columns: 1fr;
+  }
+
+  .bg-custom-row {
+    grid-template-columns: 1fr;
+  }
+
+  .segment-mode-group {
+    flex-direction: column;
+  }
+
+  .preview-toolbar,
+  .preview-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .preview-stats {
+    gap: 14px;
+  }
+
+  .preview-mode-group {
+    width: 100%;
+  }
+
+  .preview-mode-btn {
+    flex: 1;
+  }
+
+  .action-bar {
+    flex-direction: column;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+  }
+
+  .preview-stage-inner {
+    min-height: 240px;
+  }
+}
+
+

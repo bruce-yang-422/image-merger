@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-labelledby="logoDarkTitle logoDarkDesc">
+  <title id="logoDarkTitle">Image Merger</title>
+  <desc id="logoDarkDesc">Dark theme icon showing images merged into one long vertical image.</desc>
+  <rect x="8" y="4" width="32" height="40" rx="12" fill="#10141d" stroke="#cfe1ff" stroke-width="2"/>
+  <rect x="14" y="9" width="20" height="8" rx="3" fill="#29374c" stroke="#5e7da8" stroke-width="1.2"/>
+  <rect x="12" y="19" width="24" height="8" rx="3" fill="#79c3ff"/>
+  <rect x="10" y="29" width="28" height="10" rx="4" fill="#3f8cff"/>
+  <path d="M24 16v12" stroke="#f4f8ff" stroke-width="2.2" stroke-linecap="round"/>
+  <path d="M20.5 24.5L24 28l3.5-3.5" fill="none" stroke="#f4f8ff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
