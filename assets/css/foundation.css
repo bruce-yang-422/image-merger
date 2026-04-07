@@ -101,18 +101,6 @@ body {
   object-fit: contain;
 }
 
-.brand-mark-image-dark {
-  display: none;
-}
-
-body[data-color-scheme='dark'] .brand-mark-image-light {
-  display: none;
-}
-
-body[data-color-scheme='dark'] .brand-mark-image-dark {
-  display: block;
-}
-
 .eyebrow {
   margin: 0 0 4px;
   font-size: 11px;
