@@ -37,7 +37,7 @@ image-merger/
 ├─ cli.py
 ├─ requirements.txt
 ├─ doc/
-│  └─ 開發文件.md
+│  └─ development_notes.md
 └─ src/
    └─ image_merger/
       ├─ __init__.py

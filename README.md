@@ -75,7 +75,7 @@ image-merger/
 ├─ cli.py
 ├─ requirements.txt
 ├─ doc/
-│  └─ 開發文件.md
+│  └─ development_notes.md
 └─ src/
    └─ image_merger/
       ├─ __init__.py
@@ -156,7 +156,7 @@ python cli.py --input-dir ./input --output-dir ./output --output-name product_sh
 - 大尺寸與大量圖片的穩定性驗證
 - 文件與實作持續同步
 
-如果你想看更偏內部維護的說明，請參考 [doc/開發文件.md](./doc/%E9%96%8B%E7%99%BC%E6%96%87%E4%BB%B6.md)。
+如果你想看更偏內部維護的說明，請參考 [doc/development_notes.md](./doc/development_notes.md)。
 
 ## 授權
 
