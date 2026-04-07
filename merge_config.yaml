@@ -1,0 +1,55 @@
+# Image Merger 設定檔
+#
+# 這份檔案是給「不想記命令列參數」的使用者準備的。
+# 你只要改下面的值，之後直接執行：
+#
+#   python cli.py
+#
+# 就會依照這份設定檔進行圖片合併。
+#
+# 路徑可以寫相對路徑，例如 input、output。
+# 顏色請用十六進位格式，例如 #ffffff。
+#
+# 可用方向：
+# - vertical   直向合併
+# - horizontal 橫向合併
+#
+# 可用輸出格式：
+# - png
+# - jpg
+# - jpeg
+
+# 來源圖片資料夾
+# 把要合併的圖片放進這個資料夾
+input_dir: input
+
+# 輸出資料夾
+# 合併完成的圖片會存到這裡
+output_dir: output
+
+# 輸出檔名
+# 不需要副檔名，程式會自動補上
+output_name: merged_image
+
+# 輸出格式
+output_format: png
+
+# 合併方向
+# vertical = 上下接在一起
+# horizontal = 左右接在一起
+direction: vertical
+
+# 圖片之間的間距，單位是像素（px）
+spacing: 0
+
+# 整張輸出圖四周留白，單位是像素（px）
+padding: 0
+
+# 背景顏色
+# 例如白色是 #ffffff，黑色是 #000000
+background: "#ffffff"
+
+# 是否遞迴讀取子資料夾
+# true  = 會把 input 底下所有子資料夾的圖片一起找出來
+# false = 只讀取 input 這一層
+recursive: false

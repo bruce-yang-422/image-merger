@@ -38,7 +38,7 @@ function syncDirectionControls() {
 function syncSegmentModeControls() {
   dom.segmentModeButtons.forEach((button) => {
     button.classList.toggle('active', button.dataset.segmentMode === store.settings.segmentMode);
-    button.disabled = dom.autoSegmentChk.disabled;
+    button.disabled = false;
   });
 }
 

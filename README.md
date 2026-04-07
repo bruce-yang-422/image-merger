@@ -35,6 +35,7 @@
 - 高度超過 `10000px` 顯示建議警告
 - 高度超過 `16000px` 時強制啟用自動分段
 - 主題切換：`System 跟隨系統`、`Light 淺色`、`Dark 深色`
+- 頁尾版權資訊：`© 2026 Bruce Yang. All rights reserved.`
 
 ## Python CLI 功能
 
@@ -69,12 +70,20 @@ image-merger/
 │  │  ├─ style.css
 │  │  ├─ foundation.css
 │  │  ├─ components.css
+│  │  ├─ library.css
+│  │  ├─ preview.css
 │  │  ├─ responsive.css
 │  │  └─ themes.css
 │  └─ js/
 │     ├─ app.js
-│     └─ core.js
+│     ├─ core.js
+│     └─ shared.js
 ├─ cli.py
+├─ merge_config.yaml
+├─ input/
+│  └─ .gitkeep
+├─ output/
+│  └─ .gitkeep
 ├─ requirements.txt
 ├─ doc/
 │  └─ development_notes.md
@@ -118,7 +127,22 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-### 基本範例
+### 推薦用法：YAML 設定檔
+
+專案根目錄已提供一份 [merge_config.yaml](./merge_config.yaml)，並建立好：
+
+- `input/`：放來源圖片
+- `output/`：輸出合併結果
+
+只要先修改 `merge_config.yaml`，再執行：
+
+```bash
+python cli.py
+```
+
+這種方式比較適合非技術使用者，因為不需要記一長串參數。
+
+### 命令列範例
 
 垂直合併：
 
@@ -140,7 +164,8 @@ python cli.py --input-dir ./input --output-dir ./output --output-name product_sh
 
 ### 參數說明
 
-- `--input-dir`：輸入資料夾，必填
+- `--config`：YAML 設定檔路徑，預設為 `merge_config.yaml`
+- `--input-dir`：輸入資料夾；若未提供，會改讀設定檔
 - `--output-dir`：輸出資料夾，預設為 `output`
 - `--output-name`：輸出檔名主體，預設為 `merged_image`
 - `--output-format`：輸出格式，可選 `png`、`jpg`、`jpeg`
