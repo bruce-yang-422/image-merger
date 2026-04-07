@@ -1,0 +1,80 @@
+body[data-color-scheme="dark"] {
+  --bg: #1d1f24;
+  --surface: rgba(32, 35, 42, 0.86);
+  --surface-2: rgba(42, 46, 55, 0.76);
+  --surface-3: rgba(49, 54, 64, 0.96);
+  --ink: #f3f5f8;
+  --muted: #9ca4b5;
+  --accent: #7b61ff;
+  --accent-soft: rgba(123, 97, 255, 0.16);
+  --accent-hover: #6d54ea;
+  --success: #5fcf97;
+  --warn: #ffb454;
+  --danger: #ff6b6b;
+  --border: rgba(255, 255, 255, 0.10);
+  --border-focus: #8b74ff;
+  --preview-stage: #111318;
+  --preview-stage-2: #181b22;
+  --shadow: 0 18px 46px rgba(0, 0, 0, 0.34), 0 2px 8px rgba(0, 0, 0, 0.18);
+  background:
+    radial-gradient(circle at top left, rgba(123, 97, 255, 0.12), transparent 24%),
+    radial-gradient(circle at top right, rgba(28, 157, 255, 0.10), transparent 20%),
+    linear-gradient(180deg, #1a1c22 0%, #15171c 100%);
+}
+
+body[data-color-scheme="dark"] .drop-area:hover,
+body[data-color-scheme="dark"] .drop-area.drag-over {
+  border-color: rgba(123, 97, 255, 0.36);
+}
+
+body[data-color-scheme="dark"] .image-item {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+body[data-color-scheme="dark"] .preview-stage {
+  background:
+    radial-gradient(circle at top, rgba(255, 255, 255, 0.04), transparent 36%),
+    linear-gradient(180deg, var(--preview-stage-2) 0%, var(--preview-stage) 100%);
+}
+
+body[data-color-scheme="dark"] .preview-stage-inner {
+  background-color: rgba(245, 245, 247, 0.96);
+}
+
+body[data-color-scheme="dark"] .theme-chip.active {
+  color: #fff;
+}
+
+body[data-color-scheme="light"] {
+  --bg: #eeebe4;
+  --surface: rgba(255, 255, 255, 0.78);
+  --surface-2: rgba(255, 255, 255, 0.56);
+  --surface-3: rgba(255, 255, 255, 0.92);
+  --ink: #16130f;
+  --muted: #756c61;
+  --accent: #cc5a2b;
+  --accent-soft: rgba(204, 90, 43, 0.10);
+  --accent-hover: #ad451b;
+  --success: #20623d;
+  --warn: #915b0f;
+  --danger: #b02020;
+  --border: rgba(108, 89, 68, 0.14);
+  --border-focus: #cc5a2b;
+  --preview-stage: #23201d;
+  --preview-stage-2: #2e2925;
+  --shadow: 0 12px 40px rgba(60, 40, 18, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
+  background:
+    radial-gradient(circle at top left, rgba(204, 90, 43, 0.08), transparent 26%),
+    radial-gradient(circle at top right, rgba(120, 142, 165, 0.10), transparent 24%),
+    linear-gradient(180deg, #f6f2ec 0%, var(--bg) 100%);
+}
+
+body[data-color-scheme="light"] .preview-stage {
+  background:
+    radial-gradient(circle at top, rgba(255, 255, 255, 0.03), transparent 36%),
+    linear-gradient(180deg, rgba(35, 32, 29, 0.92) 0%, rgba(30, 27, 24, 0.96) 100%);
+}
+
+body[data-color-scheme="light"] .preview-stage-inner {
+  background-color: rgba(255, 255, 255, 0.96);
+}
