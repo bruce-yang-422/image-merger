@@ -1,44 +1,69 @@
-# 圖片合併工具
+# Image Merger
 
-這是一個同時提供 `Python CLI` 與 `GitHub Pages` 網頁版的圖片合併專案。
+`Image Merger` 是一個以瀏覽器為主、同時保留 `Python CLI` 的圖片合併工具。你可以直接在網頁上傳多張圖片、調整排列與輸出設定、即時預覽後下載；也可以用命令列處理資料夾中的圖片。
 
-目前網頁版是主要使用介面，適合直接在瀏覽器上傳圖片、排序、調整設定並下載結果；Python 版則適合離線處理、批次腳本與自動化流程。
+正式網址：<https://image-merger.stack-base.com/>
 
-## 正式網址
+## 專案定位
 
-```text
-https://image-merger.stack-base.com/
-```
+這個專案分成兩條使用路線：
 
-## 目前功能
+- 網頁版：主版本，適合日常操作、手動排序、即時預覽與快速下載
+- Python 版：輔助版本，適合離線批次處理與腳本整合
 
-### 網頁版
+## 網頁版功能
 
-- 支援 `JPG`、`PNG`、`WebP` 上傳
-- 最多可載入 50 張圖片
-- 支援拖放上傳與點擊選檔
-- 支援依檔名排序、手動拖曳排序、刪除單張、全部清除
-- 支援垂直、水平、`Grid` 三種排列模式
-- 支援輸出尺寸、間距、背景色、圓角、DPI、分段輸出設定
-- 支援 `JPG`、`PNG`、`WebP` 輸出
-- 可即時預覽輸出結果、顯示尺寸與預估大小
-- 支援主題切換：`System 跟隨系統`、`Light 淺色`、`Dark 深色`
+目前網頁版已支援：
 
-### Python 版
+- 支援 `JPG`、`PNG`、`WebP` 圖片上傳
+- 最多載入 50 張圖片
+- 拖放上傳與點擊選檔
+- 依檔名自然排序
+- 手動拖曳排序、刪除單張、全部清除
+- 三種拼接方向：`直向`、`橫向`、`網格`
+- 輸出尺寸預設值與自訂尺寸
+- `JPG`、`PNG`、`WebP` 輸出
+- `JPG` 品質調整
+- 背景色常用色票、自訂色與文字輸入
+- 每張圖片圓角設定
+- 圖片間距設定
+- `DPI` 選單與實體尺寸換算
+- 兩種預覽模式：`滿寬預覽`、`完整置中`
+- 兩種分段模式：`固定切段`、`保留整圖`
+- 高度超過 `10000px` 顯示建議警告
+- 高度超過 `16000px` 時強制啟用自動分段
+- 主題切換：`System 跟隨系統`、`Light 淺色`、`Dark 深色`
+
+## Python CLI 功能
+
+目前 Python 版已支援：
 
 - 從輸入資料夾讀取圖片
-- 將結果輸出到指定資料夾
-- 支援垂直與水平合併
-- 支援間距、留白、背景色
-- 支援遞迴讀取子資料夾圖片
-- 支援輸出 `png`、`jpg`、`jpeg`
+- 將輸出結果寫入指定資料夾
+- 支援 `vertical`、`horizontal` 兩種合併方向
+- 支援間距、外圍留白、背景色
+- 支援遞迴搜尋子資料夾圖片
+- 依檔名排序圖片
+- 輸出 `png`、`jpg`、`jpeg`
 
-## 專案目錄
+目前 Python 版尚未支援：
+
+- `Grid` 模式
+- `WebP` 輸出
+- `DPI` 設定
+- 分段輸出
+- 即時預覽
+
+## 專案結構
 
 ```text
 image-merger/
 ├─ index.html
 ├─ assets/
+│  ├─ brand/
+│  │  ├─ favicon.ico
+│  │  ├─ logo-light.svg
+│  │  └─ logo-dark.svg
 │  ├─ css/
 │  │  ├─ style.css
 │  │  ├─ foundation.css
@@ -60,7 +85,9 @@ image-merger/
 
 ## 網頁版使用方式
 
-### 線上版本
+### 直接使用
+
+開啟正式站點即可：
 
 ```text
 https://image-merger.stack-base.com/
@@ -80,17 +107,9 @@ python -m http.server
 http://localhost:8000/
 ```
 
-### GitHub Pages 部署
+## Python CLI 使用方式
 
-1. 將專案推送到 GitHub。
-2. 到儲存庫的 `Settings` > `Pages`。
-3. 發布來源選擇 `Deploy from a branch`。
-4. 分支選擇 `main`，資料夾選擇 `/ (root)`。
-5. 儲存後等待 GitHub Pages 發布完成。
-
-## Python 版使用方式
-
-### 安裝
+### 安裝依賴
 
 ```bash
 python -m venv .venv
@@ -98,7 +117,7 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-### 範例
+### 基本範例
 
 垂直合併：
 
@@ -118,9 +137,9 @@ python cli.py --input-dir ./input --output-dir ./output --output-name merged_hor
 python cli.py --input-dir ./input --output-dir ./output --output-name product_sheet --output-format jpg --spacing 16 --padding 24 --background "#ffffff"
 ```
 
-### 目前支援參數
+### 參數說明
 
-- `--input-dir`：輸入資料夾
+- `--input-dir`：輸入資料夾，必填
 - `--output-dir`：輸出資料夾，預設為 `output`
 - `--output-name`：輸出檔名主體，預設為 `merged_image`
 - `--output-format`：輸出格式，可選 `png`、`jpg`、`jpeg`
@@ -128,19 +147,18 @@ python cli.py --input-dir ./input --output-dir ./output --output-name product_sh
 - `--spacing`：圖片間距
 - `--padding`：外圍留白
 - `--background`：背景色，例如 `#ffffff`
-- `--recursive`：遞迴搜尋圖片
+- `--recursive`：遞迴搜尋子資料夾圖片
 
-## 目前狀態
+## 開發重點
 
-- 網頁版：已可實際使用，現階段重點是 UI 細修、文件同步與穩定性驗證
-- Python 版：基礎可用，適合作為批次工具，但功能比網頁版精簡
+目前開發重心在網頁版，包含：
 
-## 後續方向
+- 介面密度與操作細節持續微調
+- 大尺寸與大量圖片的穩定性驗證
+- 文件與實作持續同步
 
-- 持續優化網頁版操作體驗與版面細節
-- 補強大量圖片與大尺寸輸出的測試
-- 視需求再擴充 Python 版的 `Grid`、品質控制或分段輸出能力
+如果你想看更偏內部維護的說明，請參考 [doc/開發文件.md](./doc/%E9%96%8B%E7%99%BC%E6%96%87%E4%BB%B6.md)。
 
 ## 授權
 
-本專案採用 [MIT 授權](./LICENSE)。
+本專案採用 [MIT License](./LICENSE)。
