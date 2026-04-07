@@ -1,314 +1,62 @@
-﻿/* Image Merger app.js */
-'use strict';
-
-const fileInput = document.getElementById('file-input');
-const themeChips = [...document.querySelectorAll('.theme-chip')];
-const dropArea = document.getElementById('drop-area');
-const imageListPanel = document.getElementById('image-list-panel');
-const imageList = document.getElementById('image-list');
-const imageCount = document.getElementById('image-count');
-const sortBtn = document.getElementById('sort-btn');
-const clearBtn = document.getElementById('clear-btn');
-const directionSel = document.getElementById('direction');
-const directionButtons = [...document.querySelectorAll('.direction-btn')];
-const gridColsField = document.getElementById('grid-cols-field');
-const gridColsInput = document.getElementById('grid-cols');
-const sizeLabelEl = document.getElementById('size-label');
-const sizeCustomInput = document.getElementById('size-custom');
-const spacingRange = document.getElementById('spacing-range');
-const spacingNum = document.getElementById('spacing-num');
-const formatSel = document.getElementById('format');
-const qualityField = document.getElementById('quality-field');
-const qualityRange = document.getElementById('quality-range');
-const qualityNum = document.getElementById('quality-num');
-const bgColorPicker = document.getElementById('bg-color');
-const bgColorText = document.getElementById('bg-color-text');
-const cornerCustomInput = document.getElementById('corner-custom');
-const physicalSizeEl = document.getElementById('physical-size');
-const dpiSelect = document.getElementById('dpi-select');
-const previewStageInner = document.getElementById('preview-stage-inner');
-const previewSizePxEl = document.getElementById('preview-size-px');
-const previewChunkCountEl = document.getElementById('preview-chunk-count');
-const previewModeInput = document.getElementById('preview-mode');
-const previewModeButtons = [...document.querySelectorAll('.preview-mode-btn')];
-const autoSegmentChk = document.getElementById('auto-segment');
-const maxHeightInput = document.getElementById('max-height');
-const segmentModeInput = document.getElementById('segment-mode');
-const segmentModeButtons = [...document.querySelectorAll('.segment-mode-btn')];
-const previewCanvas = document.getElementById('preview-canvas');
-const previewMeta = document.getElementById('preview-meta');
-const warningBanner = document.getElementById('warning-banner');
-const mergeBtn = document.getElementById('merge-btn');
-const downloadBtn = document.getElementById('download-btn');
-const statusBar = document.getElementById('status-bar');
-
-const previewCtx = previewCanvas.getContext('2d');
-const THEME_STORAGE_KEY = 'image-merger-theme';
-const systemThemeQuery = window.matchMedia('(prefers-color-scheme: dark)');
-const THUMB_SIZE = 56;
-const MAX_PREVIEW_PX = 800;
-const SOFT_SEGMENT_HEIGHT = 10000;
-const HARD_SEGMENT_HEIGHT = 16000;
-
-let images = [];
-let nextId = 0;
-let dragSrcId = null;
-let outputBlobs = [];
-let outputNames = [];
-let previewTimer = null;
-let settings = {
-  direction: 'vertical',
-  gridCols: 3,
-  outputSize: null,
-  spacing: 0,
-  background: '#ffffff',
-  format: 'jpg',
-  quality: 90,
-  cornerRadius: 0,
-  dpi: 96,
-  autoSegment: false,
-  maxSegmentHeight: 10000,
-  segmentMode: 'strict',
-  previewMode: 'fill',
-};
-
-function showStatus(message, type = '') {
-  statusBar.textContent = message;
-  statusBar.className = `status-bar ${type}`.trim();
-}
-
-function resolveThemeChoice(themeChoice) {
-  if (themeChoice === 'light' || themeChoice === 'dark') return themeChoice;
-  return systemThemeQuery.matches ? 'dark' : 'light';
-}
-
-function applyTheme(themeChoice) {
-  const nextChoice = ['system', 'light', 'dark'].includes(themeChoice) ? themeChoice : 'system';
-  const resolvedTheme = resolveThemeChoice(nextChoice);
-  document.body.dataset.themeChoice = nextChoice;
-  document.body.dataset.colorScheme = resolvedTheme;
-  themeChips.forEach((chip) => {
-    chip.classList.toggle('active', chip.dataset.themeChoice === nextChoice);
-  });
-  localStorage.setItem(THEME_STORAGE_KEY, nextChoice);
-}
-
-function loadImg(file) {
-  return new Promise((resolve, reject) => {
-    const url = URL.createObjectURL(file);
-    const img = new Image();
-    img.onload = () => {
-      URL.revokeObjectURL(url);
-      resolve(img);
-    };
-    img.onerror = () => {
-      URL.revokeObjectURL(url);
-      reject(new Error(`\u7121\u6cd5\u8f09\u5165\uff1a${file.name}`));
-    };
-    img.src = url;
-  });
-}
-
-async function addFiles(fileList) {
-  const accepted = [...fileList].filter((file) => /\.(jpe?g|png|webp)$/i.test(file.name));
-  const skipped = fileList.length - accepted.length;
-
-  if (images.length + accepted.length > 50) {
-    showStatus("\u6700\u591a\u652f\u63f4 50 \u5f35\u5716\u7247", "warn");
-    return;
-  }
-
-  for (const file of accepted) {
-    try {
-      const img = await loadImg(file);
-      images.push({ id: nextId++, file, name: file.name, img });
-    } catch (error) {
-      showStatus(error.message, 'error');
-    }
-  }
-
-  if (skipped > 0) {
-    showStatus(`\u5df2\u8df3\u904e ${skipped} \u500b\u4e0d\u652f\u63f4\u683c\u5f0f\u7684\u6a94\u6848`, "warn");
-  } else if (accepted.length > 0) {
-    showStatus('');
-  }
-
-  sortByFilename();
-  renderImageList();
-  schedulePreview();
-}
-
-function sortByFilename() {
-  images.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }));
-}
-
-function renderImageList() {
-  const count = images.length;
-  imageCount.textContent = String(count);
-  imageListPanel.hidden = count === 0;
-  mergeBtn.disabled = count === 0;
-
-  if (count === 0) {
-    previewMeta.textContent = '-';
-    warningBanner.hidden = true;
-    previewCanvas.width = 0;
-    previewCanvas.height = 0;
-    previewCanvas.hidden = true;
-    previewSizePxEl.textContent = "0 \u00d7 0 px";
-    physicalSizeEl.textContent = "0 \u00d7 0 cm";
-    previewChunkCountEl.textContent = '1';
-    outputBlobs = [];
-    outputNames = [];
-    downloadBtn.disabled = true;
-  }
-
-  imageList.innerHTML = '';
-  for (const item of images) {
-    imageList.appendChild(buildImageItem(item));
-  }
-}
-
-function buildImageItem(item) {
-  const li = document.createElement('li');
-  li.className = 'image-item';
-  li.dataset.id = String(item.id);
-  li.draggable = true;
-
-  const handle = document.createElement('span');
-  handle.className = 'drag-handle';
-  handle.textContent = '::';
-  handle.title = 'Reorder';
-
-  const thumb = document.createElement('canvas');
-  thumb.className = 'thumb';
-  thumb.width = THUMB_SIZE;
-  thumb.height = THUMB_SIZE;
-  const thumbCtx = thumb.getContext('2d');
-  const scale = Math.min(THUMB_SIZE / item.img.width, THUMB_SIZE / item.img.height);
-  const thumbW = item.img.width * scale;
-  const thumbH = item.img.height * scale;
-  thumbCtx.fillStyle = '#e8e4dc';
-  thumbCtx.fillRect(0, 0, THUMB_SIZE, THUMB_SIZE);
-  thumbCtx.drawImage(item.img, (THUMB_SIZE - thumbW) / 2, (THUMB_SIZE - thumbH) / 2, thumbW, thumbH);
-
-  const info = document.createElement('div');
-  info.className = 'image-info';
-  const nameEl = document.createElement('span');
-  nameEl.className = 'image-name';
-  nameEl.textContent = item.name;
-  nameEl.title = item.name;
-  const dimEl = document.createElement('span');
-  dimEl.className = 'image-dim';
-  dimEl.textContent = `${item.img.width} \u00d7 ${item.img.height} px`;
-  info.append(nameEl, dimEl);
-
-  const delBtn = document.createElement('button');
-  delBtn.type = 'button';
-  delBtn.className = 'del-btn';
-  delBtn.textContent = 'x';
-  delBtn.title = 'Remove';
-  delBtn.addEventListener('click', () => {
-    images = images.filter((image) => image.id !== item.id);
-    renderImageList();
-    schedulePreview();
-  });
-
-  li.append(handle, thumb, info, delBtn);
-
-  li.addEventListener('dragstart', (event) => {
-    dragSrcId = item.id;
-    setTimeout(() => li.classList.add('dragging'), 0);
-    event.dataTransfer.effectAllowed = 'move';
-  });
-
-  li.addEventListener('dragend', () => {
-    li.classList.remove('dragging');
-    document.querySelectorAll('.image-item.drag-over').forEach((el) => el.classList.remove('drag-over'));
-  });
-
-  li.addEventListener('dragover', (event) => {
-    event.preventDefault();
-    event.dataTransfer.dropEffect = 'move';
-    if (dragSrcId === item.id) return;
-    document.querySelectorAll('.image-item.drag-over').forEach((el) => el.classList.remove('drag-over'));
-    li.classList.add('drag-over');
-  });
-
-  li.addEventListener('dragleave', () => li.classList.remove('drag-over'));
-  li.addEventListener('drop', (event) => {
-    event.preventDefault();
-    li.classList.remove('drag-over');
-    if (dragSrcId === item.id) return;
-    const srcIdx = images.findIndex((image) => image.id === dragSrcId);
-    const dstIdx = images.findIndex((image) => image.id === item.id);
-    if (srcIdx < 0 || dstIdx < 0) return;
-    const [moved] = images.splice(srcIdx, 1);
-    images.splice(dstIdx, 0, moved);
-    renderImageList();
-    schedulePreview();
-  });
-
-  return li;
-}
+import {
+  dom, store, MAX_PREVIEW_RENDER_PIXELS, SOFT_SEGMENT_HEIGHT, HARD_SEGMENT_HEIGHT, showStatus,
+} from './shared.js';
 
 function readSettings() {
-  settings.direction = directionSel.value;
-  settings.gridCols = Math.max(1, parseInt(gridColsInput.value, 10) || 3);
-  settings.spacing = Math.max(0, parseInt(spacingNum.value, 10) || 0);
-  settings.background = bgColorPicker.value;
-  settings.format = formatSel.value;
-  settings.quality = Math.min(100, Math.max(60, parseInt(qualityNum.value, 10) || 90));
+  const { settings } = store;
+  settings.direction = dom.directionSel.value;
+  settings.gridCols = Math.max(1, parseInt(dom.gridColsInput.value, 10) || 3);
+  settings.spacing = Math.max(0, parseInt(dom.spacingNum.value, 10) || 0);
+  settings.background = dom.bgColorPicker.value;
+  settings.format = dom.formatSel.value;
+  settings.quality = Math.min(100, Math.max(60, parseInt(dom.qualityNum.value, 10) || 90));
 
   const activeCorner = document.querySelector('.corner-btn.active');
   settings.cornerRadius = activeCorner ? parseInt(activeCorner.dataset.corner, 10) : 0;
-  const customCorner = parseInt(cornerCustomInput.value, 10);
-  if (cornerCustomInput.value && customCorner >= 0 && customCorner <= 500) {
-    settings.cornerRadius = customCorner;
-  }
+  const customCorner = parseInt(dom.cornerCustomInput.value, 10);
+  if (dom.cornerCustomInput.value && customCorner >= 0 && customCorner <= 500) settings.cornerRadius = customCorner;
 
-  settings.autoSegment = autoSegmentChk.checked;
-  settings.maxSegmentHeight = Math.max(1000, parseInt(maxHeightInput.value, 10) || 10000);
-  settings.segmentMode = segmentModeInput.value === 'preserve' ? 'preserve' : 'strict';
-  settings.previewMode = previewModeInput.value === 'contain' ? 'contain' : 'fill';
+  settings.autoSegment = dom.autoSegmentChk.checked;
+  settings.maxSegmentHeight = Math.max(1000, parseInt(dom.maxHeightInput.value, 10) || 10000);
+  settings.segmentMode = dom.segmentModeInput.value === 'preserve' ? 'preserve' : 'strict';
+  settings.previewMode = dom.previewModeInput.value === 'contain' ? 'contain' : 'fill';
 
   const activeSize = document.querySelector('.preset-btn:not(.corner-btn).active');
   settings.outputSize = activeSize && activeSize.dataset.size !== 'auto' ? parseInt(activeSize.dataset.size, 10) : null;
-  const customSize = parseInt(sizeCustomInput.value, 10);
-  if (sizeCustomInput.value && customSize >= 100 && customSize <= 10000) {
-    settings.outputSize = customSize;
-  }
+  const customSize = parseInt(dom.sizeCustomInput.value, 10);
+  if (dom.sizeCustomInput.value && customSize >= 100 && customSize <= 10000) settings.outputSize = customSize;
 
-  settings.dpi = parseInt(dpiSelect.value, 10) || 96;
+  settings.dpi = parseInt(dom.dpiSelect.value, 10) || 96;
 }
 
 function syncDirectionControls() {
-  directionButtons.forEach((button) => {
-    button.classList.toggle('active', button.dataset.direction === settings.direction);
+  dom.directionButtons.forEach((button) => {
+    button.classList.toggle('active', button.dataset.direction === store.settings.direction);
   });
 }
 
 function syncSegmentModeControls() {
-  segmentModeButtons.forEach((button) => {
-    button.classList.toggle('active', button.dataset.segmentMode === settings.segmentMode);
-    button.disabled = autoSegmentChk.disabled;
+  dom.segmentModeButtons.forEach((button) => {
+    button.classList.toggle('active', button.dataset.segmentMode === store.settings.segmentMode);
+    button.disabled = dom.autoSegmentChk.disabled;
   });
 }
 
 function syncPreviewModeControls() {
-  previewModeButtons.forEach((button) => {
-    button.classList.toggle('active', button.dataset.previewMode === settings.previewMode);
+  dom.previewModeButtons.forEach((button) => {
+    button.classList.toggle('active', button.dataset.previewMode === store.settings.previewMode);
   });
-  previewStageInner.classList.toggle('preview-mode-fill', settings.previewMode === 'fill');
-  previewStageInner.classList.toggle('preview-mode-contain', settings.previewMode === 'contain');
+  dom.previewStageInner.classList.toggle('preview-mode-fill', store.settings.previewMode === 'fill');
+  dom.previewStageInner.classList.toggle('preview-mode-contain', store.settings.previewMode === 'contain');
 }
 
 function updateSizeLabel() {
   const labels = {
-    vertical: "\u8f38\u51fa\u5bec\u5ea6\uff08px\uff09",
-    horizontal: "\u7d71\u4e00\u9ad8\u5ea6\uff08px\uff09",
-    grid: "Cell \u5c3a\u5bf8\uff08px\uff09",
+    vertical: '\u8f38\u51fa\u5bec\u5ea6\uff08px\uff09',
+    horizontal: '\u7d71\u4e00\u9ad8\u5ea6\uff08px\uff09',
+    grid: 'Cell \u5c3a\u5bf8\uff08px\uff09',
   };
-  sizeLabelEl.textContent = labels[settings.direction] || labels.vertical;
+  dom.sizeLabelEl.textContent = labels[store.settings.direction] || labels.vertical;
 }
 
 function onSettingChange() {
@@ -316,8 +64,8 @@ function onSettingChange() {
   syncDirectionControls();
   syncSegmentModeControls();
   syncPreviewModeControls();
-  gridColsField.hidden = settings.direction !== 'grid';
-  qualityField.hidden = settings.format === 'png';
+  dom.gridColsField.hidden = store.settings.direction !== 'grid';
+  dom.qualityField.hidden = store.settings.format === 'png';
   updateSizeLabel();
   schedulePreview();
 }
@@ -331,26 +79,25 @@ function parseColor(value) {
   const rgbMatch = input.match(/^rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)$/i);
   if (!rgbMatch) return null;
   const [r, g, b] = rgbMatch.slice(1).map(Number);
-  if ([r, g, b].every((channel) => channel <= 255)) {
-    return '#' + [r, g, b].map((channel) => channel.toString(16).padStart(2, '0')).join('');
-  }
-  return null;
+  return [r, g, b].every((channel) => channel <= 255)
+    ? '#' + [r, g, b].map((channel) => channel.toString(16).padStart(2, '0')).join('')
+    : null;
 }
 
 function applyBackgroundColor(hex) {
-  bgColorPicker.value = hex;
-  bgColorText.value = hex;
-  bgColorText.classList.remove('invalid');
-  settings.background = hex;
+  dom.bgColorPicker.value = hex;
+  dom.bgColorText.value = hex;
+  dom.bgColorText.classList.remove('invalid');
+  store.settings.background = hex;
   document.querySelectorAll('.swatch').forEach((swatch) => {
     swatch.classList.toggle('active', swatch.dataset.color.toLowerCase() === hex.toLowerCase());
   });
 }
 
 function computePositions() {
-  if (!images.length) return [];
-  const { direction, gridCols, spacing, outputSize } = settings;
-  const imgs = images.map((item) => item.img);
+  if (!store.images.length) return [];
+  const { direction, gridCols, spacing, outputSize } = store.settings;
+  const imgs = store.images.map((item) => item.img);
   const positions = [];
 
   if (direction === 'vertical') {
@@ -386,13 +133,7 @@ function computePositions() {
     const scale = Math.min(cellW / img.width, cellH / img.height);
     const w = Math.round(img.width * scale);
     const h = Math.round(img.height * scale);
-    positions.push({
-      img,
-      x: cellX + Math.round((cellW - w) / 2),
-      y: cellY + Math.round((cellH - h) / 2),
-      w,
-      h,
-    });
+    positions.push({ img, x: cellX + Math.round((cellW - w) / 2), y: cellY + Math.round((cellH - h) / 2), w, h });
   });
   return positions;
 }
@@ -423,11 +164,10 @@ function roundedRectPath(ctx, x, y, w, h, tl, tr, br, bl) {
   ctx.closePath();
 }
 
-function drawToContext(ctx, canvasW, canvasH, positions, renderScale, segmentOffsetY, segmentIndex = 0, segmentTotal = 1) {
-  ctx.fillStyle = settings.background;
+function drawToContext(ctx, canvasW, canvasH, positions, renderScale, segmentOffsetY) {
+  ctx.fillStyle = store.settings.background;
   ctx.fillRect(0, 0, canvasW, canvasH);
-
-  const radius = Math.round((settings.cornerRadius || 0) * renderScale);
+  const radius = Math.round((store.settings.cornerRadius || 0) * renderScale);
 
   for (const position of positions) {
     const dx = Math.round(position.x * renderScale);
@@ -448,42 +188,42 @@ function drawToContext(ctx, canvasW, canvasH, positions, renderScale, segmentOff
 }
 
 function updatePhysicalSize(width, height) {
-  const dpi = settings.dpi;
+  const dpi = store.settings.dpi;
   const wCm = ((width / dpi) * 2.54).toFixed(1);
   const hCm = ((height / dpi) * 2.54).toFixed(1);
-  physicalSizeEl.textContent = `${wCm} \u00d7 ${hCm} cm\n@${dpi} DPI`;
+  dom.physicalSizeEl.textContent = `${wCm} \u00d7 ${hCm} cm\n@${dpi} DPI`;
 }
 
 function updateWarningBanner(height) {
   if (height > HARD_SEGMENT_HEIGHT) {
-    warningBanner.hidden = false;
-    warningBanner.className = 'warning-banner error';
-    warningBanner.textContent = `\u5408\u6210\u9ad8\u5ea6 ${height.toLocaleString()} px \u8d85\u904e\u5b89\u5168\u4e0a\u9650\uff0c\u5df2\u5f37\u5236\u958b\u555f\u81ea\u52d5\u5206\u6bb5\u3002`;
-    autoSegmentChk.checked = true;
-    autoSegmentChk.disabled = true;
-    settings.autoSegment = true;
+    dom.warningBanner.hidden = false;
+    dom.warningBanner.className = 'warning-banner error';
+    dom.warningBanner.textContent = `\u5408\u6210\u9ad8\u5ea6 ${height.toLocaleString()} px \u8d85\u904e\u5b89\u5168\u4e0a\u9650\uff0c\u5df2\u5f37\u5236\u958b\u555f\u81ea\u52d5\u5206\u6bb5\u3002`;
+    dom.autoSegmentChk.checked = true;
+    dom.autoSegmentChk.disabled = true;
+    store.settings.autoSegment = true;
     syncSegmentModeControls();
     return;
   }
 
-  autoSegmentChk.disabled = false;
+  dom.autoSegmentChk.disabled = false;
   syncSegmentModeControls();
 
-  if (height > SOFT_SEGMENT_HEIGHT && !settings.autoSegment) {
-    warningBanner.hidden = false;
-    warningBanner.className = 'warning-banner';
-    warningBanner.textContent = `\u5716\u7247\u8f03\u9577\uff08${height.toLocaleString()} px\uff09\uff0c\u5efa\u8b70\u555f\u7528\u5206\u6bb5\u8f38\u51fa\u4ee5\u907f\u514d\u5408\u6210\u5931\u6557\u3002`;
+  if (height > SOFT_SEGMENT_HEIGHT && !store.settings.autoSegment) {
+    dom.warningBanner.hidden = false;
+    dom.warningBanner.className = 'warning-banner';
+    dom.warningBanner.textContent = `\u5716\u7247\u8f03\u9577\uff08${height.toLocaleString()} px\uff09\uff0c\u5efa\u8b70\u555f\u7528\u5206\u6bb5\u8f38\u51fa\u4ee5\u907f\u514d\u5408\u6210\u5931\u6557\u3002`;
     return;
   }
 
-  warningBanner.hidden = true;
+  dom.warningBanner.hidden = true;
 }
 
 function computeStrictSegmentRanges(totalHeight) {
   const ranges = [];
   let start = 0;
   while (start < totalHeight) {
-    const end = Math.min(start + settings.maxSegmentHeight, totalHeight);
+    const end = Math.min(start + store.settings.maxSegmentHeight, totalHeight);
     ranges.push([start, end]);
     start = end;
   }
@@ -493,12 +233,12 @@ function computeStrictSegmentRanges(totalHeight) {
 function computePreserveSegmentRanges(positions, totalHeight) {
   if (!positions.length) return [[0, totalHeight]];
 
-  if (settings.direction === 'vertical') {
+  if (store.settings.direction === 'vertical') {
     const ranges = [];
     let segmentStart = 0;
     for (const position of positions) {
       const bottom = position.y + position.h;
-      if (position.y > segmentStart && bottom - segmentStart > settings.maxSegmentHeight) {
+      if (position.y > segmentStart && bottom - segmentStart > store.settings.maxSegmentHeight) {
         ranges.push([segmentStart, position.y]);
         segmentStart = position.y;
       }
@@ -508,15 +248,15 @@ function computePreserveSegmentRanges(positions, totalHeight) {
     return ranges;
   }
 
-  if (settings.direction === 'grid') {
-    const maxCellHeight = settings.outputSize || Math.max(...images.map((item) => item.img.height));
-    const rowStep = maxCellHeight + settings.spacing;
+  if (store.settings.direction === 'grid') {
+    const maxCellHeight = store.settings.outputSize || Math.max(...store.images.map((item) => item.img.height));
+    const rowStep = maxCellHeight + store.settings.spacing;
     const ranges = [];
     let rowStart = 0;
     let segmentStart = 0;
     while (rowStart < totalHeight) {
       const rowEnd = Math.min(rowStart + rowStep, totalHeight);
-      if (rowEnd - segmentStart > settings.maxSegmentHeight && rowStart > segmentStart) {
+      if (rowEnd - segmentStart > store.settings.maxSegmentHeight && rowStart > segmentStart) {
         ranges.push([segmentStart, rowStart]);
         segmentStart = rowStart;
       }
@@ -531,20 +271,17 @@ function computePreserveSegmentRanges(positions, totalHeight) {
 
 function computeSegmentRanges(positions, totalHeight) {
   if (totalHeight > HARD_SEGMENT_HEIGHT) {
-    settings.autoSegment = true;
-    autoSegmentChk.checked = true;
+    store.settings.autoSegment = true;
+    dom.autoSegmentChk.checked = true;
   }
-
-  if (!settings.autoSegment || totalHeight <= settings.maxSegmentHeight) {
-    return [[0, totalHeight]];
-  }
-
-  return settings.segmentMode === 'preserve' ? computePreserveSegmentRanges(positions, totalHeight) : computeStrictSegmentRanges(totalHeight);
+  if (!store.settings.autoSegment || totalHeight <= store.settings.maxSegmentHeight) return [[0, totalHeight]];
+  return store.settings.segmentMode === 'preserve'
+    ? computePreserveSegmentRanges(positions, totalHeight)
+    : computeStrictSegmentRanges(totalHeight);
 }
 
 function renderPreview() {
-  if (!images.length) return;
-
+  if (!store.images.length) return;
   readSettings();
   const positions = computePositions();
   const { width, height } = computeCanvasSize(positions);
@@ -553,91 +290,128 @@ function renderPreview() {
   updateWarningBanner(height);
   updatePhysicalSize(width, height);
 
-  const stageWidth = Math.max(1, previewStageInner.clientWidth - 24);
-  const stageHeight = Math.max(1, previewStageInner.clientHeight - 24);
-  const previewScale = settings.previewMode === 'contain' ? Math.min(stageWidth / width, stageHeight / height) : stageWidth / width;
-  const scale = Math.max(0.05, Math.min(previewScale, MAX_PREVIEW_PX / Math.max(width, height), 2));
+  const stageWidth = Math.max(1, dom.previewStageInner.clientWidth - 24);
+  const stageHeight = Math.max(1, dom.previewStageInner.clientHeight - 24);
+  const previewScale = store.settings.previewMode === 'contain'
+    ? Math.min(stageWidth / width, stageHeight / height)
+    : stageWidth / width;
+
+  let scale = Math.max(0.05, Math.min(previewScale, 2));
+  const scaledPixels = width * height * scale * scale;
+  if (scaledPixels > MAX_PREVIEW_RENDER_PIXELS) {
+    scale = Math.sqrt(MAX_PREVIEW_RENDER_PIXELS / (width * height));
+  }
+
   const previewWidth = Math.max(1, Math.round(width * scale));
   const previewHeight = Math.max(1, Math.round(height * scale));
 
-  previewCanvas.hidden = false;
-  previewCanvas.width = previewWidth;
-  previewCanvas.height = previewHeight;
-  drawToContext(previewCtx, previewWidth, previewHeight, positions, scale, 0);
+  dom.previewCanvas.hidden = false;
+  dom.previewCanvas.width = previewWidth;
+  dom.previewCanvas.height = previewHeight;
+  dom.previewCtx.imageSmoothingEnabled = true;
+  dom.previewCtx.imageSmoothingQuality = 'high';
+  drawToContext(dom.previewCtx, previewWidth, previewHeight, positions, scale, 0);
 
   const segmentRanges = computeSegmentRanges(positions, height);
-  previewSizePxEl.textContent = `${width} \u00d7 ${height} px`;
-  previewChunkCountEl.textContent = String(segmentRanges.length);
+  dom.previewSizePxEl.textContent = `${width} \u00d7 ${height} px`;
+  dom.previewChunkCountEl.textContent = String(segmentRanges.length);
 
   const pixels = width * height;
-  const estimatedBytes = settings.format === 'jpg' ? pixels * 3 * (settings.quality / 100) * 0.1 : pixels * 0.6;
+  const estimatedBytes = store.settings.format === 'jpg' ? pixels * 3 * (store.settings.quality / 100) * 0.1 : pixels * 0.6;
   const estimatedText = estimatedBytes >= 1024 * 1024 ? `~${(estimatedBytes / 1024 / 1024).toFixed(1)} MB` : `~${Math.round(estimatedBytes / 1024)} KB`;
-  previewMeta.textContent = `${width} \u00d7 ${height} px\uff5c\u9810\u4f30 ${estimatedText}`;
+  dom.previewMeta.textContent = `${width} \u00d7 ${height} px\uff5c\u9810\u4f30 ${estimatedText}`;
 }
 
-function canvasToBlob(canvas, mimeType, quality) {
+async function canvasToBlob(canvas, mimeType, quality) {
   return new Promise((resolve, reject) => {
-    canvas.toBlob((blob) => {
-      if (blob) resolve(blob);
-      else reject(new Error("Canvas \u8f49\u63db\u5931\u6557"));
-    }, mimeType, quality);
+    canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error('Canvas \u8f49\u63db\u5931\u6557')), mimeType, quality);
   });
 }
 
-async function doMerge() {
-  if (!images.length) return;
+function buildOutputBaseName() {
+  const now = new Date();
+  const parts = [
+    now.getFullYear(),
+    String(now.getMonth() + 1).padStart(2, '0'),
+    String(now.getDate()).padStart(2, '0'),
+    String(now.getHours()).padStart(2, '0'),
+  ];
+  return `image_merger_${parts.join('')}`;
+}
 
+async function doMerge() {
+  if (!store.images.length) return;
   readSettings();
-  mergeBtn.disabled = true;
-  downloadBtn.disabled = true;
-  outputBlobs = [];
-  outputNames = [];
-  showStatus("\u6b63\u5728\u5408\u6210...", "");
+  dom.mergeBtn.disabled = true;
+  dom.downloadBtn.disabled = true;
+  store.outputBlobs = [];
+  store.outputNames = [];
+  showStatus('\u6b63\u5728\u5408\u6210...', '');
 
   try {
     const positions = computePositions();
     const { width, height } = computeCanvasSize(positions);
     const segmentRanges = computeSegmentRanges(positions, height);
     const formatMap = { jpg: ['jpg', 'image/jpeg'], png: ['png', 'image/png'], webp: ['webp', 'image/webp'] };
-    const [ext, mimeType] = formatMap[settings.format] || formatMap.jpg;
-    const quality = settings.format !== 'png' ? settings.quality / 100 : undefined;
+    const [ext, mimeType] = formatMap[store.settings.format] || formatMap.jpg;
+    const quality = store.settings.format !== 'png' ? store.settings.quality / 100 : undefined;
+    const baseName = buildOutputBaseName();
 
     for (let index = 0; index < segmentRanges.length; index += 1) {
       const [segmentStart, segmentEnd] = segmentRanges[index];
       const segmentHeight = segmentEnd - segmentStart;
-      showStatus(`\u5408\u6210\u4e2d... ${index + 1} / ${segmentRanges.length}`, "");
+      showStatus(`\u5408\u6210\u4e2d... ${index + 1} / ${segmentRanges.length}`, '');
       const offscreen = document.createElement('canvas');
       offscreen.width = width;
       offscreen.height = segmentHeight;
-      drawToContext(offscreen.getContext('2d'), width, segmentHeight, positions, 1, segmentStart, index, segmentRanges.length);
-      outputBlobs.push(await canvasToBlob(offscreen, mimeType, quality));
-      const suffix = segmentRanges.length > 1 ? `_${String(index + 1).padStart(2, '0')}` : '';
-      outputNames.push(`merged${suffix}.${ext}`);
+      drawToContext(offscreen.getContext('2d'), width, segmentHeight, positions, 1, segmentStart);
+      store.outputBlobs.push(await canvasToBlob(offscreen, mimeType, quality));
+      const sequence = String(index + 1).padStart(3, '0');
+      store.outputNames.push(`${baseName}_${sequence}.${ext}`);
     }
 
-    downloadBtn.disabled = false;
-    showStatus(`\u5408\u6210\u5b8c\u6210\uff0c\u5171 ${outputBlobs.length} \u500b\u8f38\u51fa\u6a94\u6848`, "success");
+    dom.downloadBtn.disabled = false;
+    showStatus(`\u5408\u6210\u5b8c\u6210\uff0c\u5171 ${store.outputBlobs.length} \u500b\u8f38\u51fa\u6a94\u6848`, 'success');
   } catch (error) {
-    showStatus(`\u5408\u6210\u5931\u6557\uff1a${error.message}`, "error");
+    showStatus(`\u5408\u6210\u5931\u6557\uff1a${error.message}`, 'error');
   } finally {
-    mergeBtn.disabled = images.length === 0;
+    dom.mergeBtn.disabled = store.images.length === 0;
   }
 }
 
 async function doDownload() {
-  if (!outputBlobs.length) return;
+  if (!store.outputBlobs.length) return;
 
-  for (let index = 0; index < outputBlobs.length; index += 1) {
-    const url = URL.createObjectURL(outputBlobs[index]);
+  if (store.outputBlobs.length === 1) {
+    const url = URL.createObjectURL(store.outputBlobs[0]);
     const link = document.createElement('a');
     link.href = url;
-    link.download = outputNames[index];
+    link.download = store.outputNames[0];
     link.click();
-    if (index < outputBlobs.length - 1) await new Promise((resolve) => setTimeout(resolve, 400));
     URL.revokeObjectURL(url);
+    showStatus(`\u5df2\u4e0b\u8f09 ${store.outputNames[0]}`, 'success');
+    return;
   }
 
-  showStatus(`\u5df2\u4e0b\u8f09 ${outputBlobs.length} \u500b\u6a94\u6848`, "success");
+  if (typeof JSZip === 'undefined') {
+    showStatus('ZIP \u6a21\u7d44\u8f09\u5165\u5931\u6557\uff0c\u7121\u6cd5\u6253\u5305\u4e0b\u8f09', 'error');
+    return;
+  }
+
+  const zip = new JSZip();
+  store.outputBlobs.forEach((blob, index) => {
+    zip.file(store.outputNames[index], blob);
+  });
+
+  const archiveBase = store.outputNames[0].replace(/_\d{3}\.[^.]+$/, '');
+  const zipBlob = await zip.generateAsync({ type: 'blob' });
+  const zipUrl = URL.createObjectURL(zipBlob);
+  const link = document.createElement('a');
+  link.href = zipUrl;
+  link.download = `${archiveBase}.zip`;
+  link.click();
+  URL.revokeObjectURL(zipUrl);
+  showStatus(`\u5df2\u6253\u5305 ZIP \u4e26\u4e0b\u8f09 ${store.outputBlobs.length} \u500b\u6a94\u6848`, 'success');
 }
 
 function bindSliderPair(rangeEl, numberEl) {
@@ -653,149 +427,8 @@ function bindSliderPair(rangeEl, numberEl) {
 }
 
 function schedulePreview() {
-  clearTimeout(previewTimer);
-  previewTimer = setTimeout(renderPreview, 180);
+  clearTimeout(store.previewTimer);
+  store.previewTimer = setTimeout(renderPreview, 180);
 }
 
-dropArea.addEventListener('click', () => fileInput.click());
-dropArea.addEventListener('dragover', (event) => {
-  event.preventDefault();
-  event.dataTransfer.dropEffect = 'copy';
-  dropArea.classList.add('drag-over');
-});
-dropArea.addEventListener('dragleave', (event) => {
-  if (!dropArea.contains(event.relatedTarget)) dropArea.classList.remove('drag-over');
-});
-dropArea.addEventListener('drop', (event) => {
-  event.preventDefault();
-  dropArea.classList.remove('drag-over');
-  addFiles(event.dataTransfer.files);
-});
-fileInput.addEventListener('change', () => {
-  addFiles(fileInput.files);
-  fileInput.value = '';
-});
-
-sortBtn.addEventListener('click', () => {
-  sortByFilename();
-  renderImageList();
-  schedulePreview();
-});
-clearBtn.addEventListener('click', () => {
-  images = [];
-  renderImageList();
-  schedulePreview();
-  showStatus('');
-});
-
-mergeBtn.addEventListener('click', doMerge);
-downloadBtn.addEventListener('click', doDownload);
-
-directionButtons.forEach((button) => {
-  button.addEventListener('click', () => {
-    directionSel.value = button.dataset.direction;
-    onSettingChange();
-  });
-});
-directionSel.addEventListener('change', onSettingChange);
-gridColsInput.addEventListener('input', onSettingChange);
-formatSel.addEventListener('change', onSettingChange);
-autoSegmentChk.addEventListener('change', onSettingChange);
-maxHeightInput.addEventListener('input', onSettingChange);
-segmentModeButtons.forEach((button) => {
-  button.addEventListener('click', () => {
-    if (button.disabled) return;
-    segmentModeInput.value = button.dataset.segmentMode;
-    onSettingChange();
-  });
-});
-previewModeButtons.forEach((button) => {
-  button.addEventListener('click', () => {
-    previewModeInput.value = button.dataset.previewMode;
-    onSettingChange();
-  });
-});
-
-bindSliderPair(spacingRange, spacingNum);
-bindSliderPair(qualityRange, qualityNum);
-
-document.querySelectorAll('.preset-btn:not(.corner-btn)').forEach((button) => {
-  button.addEventListener('click', () => {
-    document.querySelectorAll('.preset-btn:not(.corner-btn)').forEach((item) => item.classList.remove('active'));
-    button.classList.add('active');
-    sizeCustomInput.value = '';
-    onSettingChange();
-  });
-});
-sizeCustomInput.addEventListener('input', () => {
-  document.querySelectorAll('.preset-btn:not(.corner-btn)').forEach((button) => button.classList.remove('active'));
-  onSettingChange();
-});
-
-document.querySelectorAll('.corner-btn').forEach((button) => {
-  button.addEventListener('click', () => {
-    document.querySelectorAll('.corner-btn').forEach((item) => item.classList.remove('active'));
-    button.classList.add('active');
-    cornerCustomInput.value = '';
-    onSettingChange();
-  });
-});
-cornerCustomInput.addEventListener('input', () => {
-  document.querySelectorAll('.corner-btn').forEach((button) => button.classList.remove('active'));
-  onSettingChange();
-});
-
-dpiSelect.addEventListener('change', onSettingChange);
-
-document.querySelectorAll('.swatch').forEach((swatch) => {
-  swatch.addEventListener('click', () => {
-    applyBackgroundColor(swatch.dataset.color);
-    onSettingChange();
-  });
-});
-
-bgColorPicker.addEventListener('input', () => {
-  const hex = bgColorPicker.value;
-  bgColorText.value = hex;
-  bgColorText.classList.remove('invalid');
-  document.querySelectorAll('.swatch').forEach((swatch) => {
-    swatch.classList.toggle('active', swatch.dataset.color.toLowerCase() === hex.toLowerCase());
-  });
-  onSettingChange();
-});
-
-bgColorText.addEventListener('input', () => {
-  const parsed = parseColor(bgColorText.value);
-  if (!parsed) {
-    bgColorText.classList.add('invalid');
-    return;
-  }
-  bgColorText.classList.remove('invalid');
-  bgColorPicker.value = parsed;
-  document.querySelectorAll('.swatch').forEach((swatch) => {
-    swatch.classList.toggle('active', swatch.dataset.color.toLowerCase() === parsed.toLowerCase());
-  });
-  settings.background = parsed;
-  schedulePreview();
-});
-
-bgColorText.addEventListener('blur', () => {
-  if (bgColorText.classList.contains('invalid')) {
-    applyBackgroundColor(bgColorPicker.value);
-  }
-});
-
-themeChips.forEach((chip) => {
-  chip.addEventListener('click', () => applyTheme(chip.dataset.themeChoice));
-});
-systemThemeQuery.addEventListener('change', () => {
-  if (document.body.dataset.themeChoice === 'system') applyTheme('system');
-});
-
-applyTheme(localStorage.getItem(THEME_STORAGE_KEY) || document.body.dataset.themeChoice);
-previewCanvas.hidden = true;
-window.addEventListener('resize', schedulePreview);
-readSettings();
-onSettingChange();
-
-
+export { applyBackgroundColor, bindSliderPair, doDownload, doMerge, onSettingChange, parseColor, readSettings, schedulePreview };
