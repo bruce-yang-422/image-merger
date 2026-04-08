@@ -59,11 +59,12 @@
             <span class="panel-kicker">調整輸出規格</span>
           </div>
 
+          <!-- 常用設定：排列 + 格式 -->
           <div class="setting-group first-group">
-            <h3 class="group-title">拼接設定</h3>
-            <div class="setting-grid settings-grid-layout">
+            <button type="button" class="group-title" aria-expanded="true" data-group="common"><span>常用設定</span><svg class="group-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M2 4.5l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+            <div class="group-body">
+            <div class="setting-grid">
               <div class="field direction-field">
-                <span class="field-label">方向</span>
                 <div class="direction-group" aria-label="拼接方向">
                   <button type="button" class="direction-btn active" data-direction="vertical">
                     <span class="direction-icon">↕</span>
@@ -99,13 +100,7 @@
                   <input type="number" id="size-custom" min="100" max="10000" placeholder="自訂" class="num-mini" />
                 </div>
               </div>
-            </div>
-          </div>
-
-          <div class="setting-group">
-            <h3 class="group-title">輸出設定</h3>
-            <div class="setting-grid settings-grid-output">
-              <label class="field field-compact format-field">
+              <label class="field field-slider">
                 <span class="field-label">格式</span>
                 <select id="format">
                   <option value="jpg">JPG（預設）</option>
@@ -113,15 +108,24 @@
                   <option value="webp">WebP</option>
                 </select>
               </label>
-              <label class="field field-slider quality-slider-field" id="quality-field">
+              <label class="field field-slider" id="quality-field">
                 <span class="field-label">品質</span>
                 <div class="slider-row">
                   <input type="range" id="quality-range" min="60" max="100" value="90" />
                   <input type="number" id="quality-num" min="60" max="100" value="90" class="num-mini" />
                 </div>
               </label>
-              <div class="field field-wide">
-                <span class="field-label">每張圖片圓角（px）</span>
+            </div>
+            </div><!-- /group-body -->
+          </div>
+
+          <!-- 輸出設定：圓角 + 間距 + 背景色（預設收合） -->
+          <div class="setting-group">
+            <button type="button" class="group-title" aria-expanded="false" data-group="output"><span>輸出設定</span><svg class="group-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M2 4.5l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+            <div class="group-body">
+            <div class="setting-grid">
+              <div class="field field-slider">
+                <span class="field-label">圓角（px）</span>
                 <div class="preset-row">
                   <button type="button" class="preset-btn corner-btn active" data-corner="0">無</button>
                   <button type="button" class="preset-btn corner-btn" data-corner="8">8</button>
@@ -160,10 +164,13 @@
                 </div>
               </div>
             </div>
+            </div><!-- /group-body -->
           </div>
 
+          <!-- DPI 設定（預設收合） -->
           <div class="setting-group">
-            <h3 class="group-title">DPI 設定</h3>
+            <button type="button" class="group-title" aria-expanded="false" data-group="dpi"><span>DPI 設定</span><svg class="group-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M2 4.5l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+            <div class="group-body">
             <div class="setting-grid utility-grid">
               <div class="field">
                 <span class="field-label">解析度</span>
@@ -175,10 +182,13 @@
                 </select>
               </div>
             </div>
+            </div><!-- /group-body -->
           </div>
 
+          <!-- 分段輸出（預設收合） -->
           <div class="setting-group last-group">
-            <h3 class="group-title"><span class="group-title-icon" aria-hidden="true">✂</span>分段輸出</h3>
+            <button type="button" class="group-title" aria-expanded="false" data-group="segmentation"><span>分段輸出</span><svg class="group-chevron" width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M2 4.5l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+            <div class="group-body">
             <div class="setting-grid utility-grid">
               <div class="field">
                 <div class="toggle-row">
@@ -208,6 +218,7 @@
                 <input type="hidden" id="segment-mode" value="strict" />
               </div>
             </div>
+            </div><!-- /group-body -->
           </div>
         </aside>
 

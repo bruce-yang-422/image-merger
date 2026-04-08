@@ -51,6 +51,7 @@ const dom = {
 };
 
 const THEME_STORAGE_KEY = 'image-merger-theme';
+const SETTINGS_STORAGE_KEY = 'image-merger-settings';
 const systemThemeQuery = window.matchMedia('(prefers-color-scheme: dark)');
 const THUMB_SIZE = 56;
 const MAX_PREVIEW_RENDER_PIXELS = 6000000;
@@ -77,6 +78,6 @@ function showStatus(message, type = '') {
 }
 
 export {
-  dom, store, THEME_STORAGE_KEY, systemThemeQuery, THUMB_SIZE,
+  dom, store, THEME_STORAGE_KEY, SETTINGS_STORAGE_KEY, systemThemeQuery, THUMB_SIZE,
   MAX_PREVIEW_RENDER_PIXELS, SOFT_SEGMENT_HEIGHT, HARD_SEGMENT_HEIGHT, showStatus,
 };

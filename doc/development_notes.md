@@ -57,14 +57,14 @@ image-merger/
 - `index.html`：前端主頁面、SEO meta、控制項結構
 - `assets/css/style.css`：CSS 匯入入口與全域基礎規則
 - `assets/css/foundation.css`：頁面骨架、Header、Footer、外層版面
-- `assets/css/components.css`：設定面板、表單控制項、按鈕與通用元件
+- `assets/css/components.css`：設定面板、表單控制項、按鈕與通用元件（含折疊群組樣式）
 - `assets/css/library.css`：上傳區、圖片清單、拖曳排序列表樣式
 - `assets/css/preview.css`：預覽區、資訊列、警告訊息與操作按鈕
 - `assets/css/responsive.css`：桌機與行動裝置響應式規則
 - `assets/css/themes.css`：淺色、深色、跟隨系統主題變數
-- `assets/js/shared.js`：共享狀態、DOM 參考與常數
-- `assets/js/core.js`：設定同步、排版計算、預覽、合成、下載核心邏輯
-- `assets/js/app.js`：初始化、事件綁定、上傳流程、清單互動、主題切換
+- `assets/js/shared.js`：共享狀態、DOM 參考與常數（含 `THEME_STORAGE_KEY`、`SETTINGS_STORAGE_KEY`）
+- `assets/js/core.js`：設定同步、排版計算、預覽、合成、下載核心邏輯（含 `saveSettings()`）
+- `assets/js/app.js`：初始化、事件綁定、上傳流程、清單互動、主題切換（含 `restoreSettings()`、`bindCollapsibleGroups()`）
 - `cli.py`：Python CLI 入口，支援讀取 YAML 設定檔
 - `merge_config.yaml`：給非技術使用者編輯的設定檔
 - `input/`：預設輸入資料夾
@@ -99,8 +99,25 @@ image-merger/
 - 預設檔名格式為 `image_merger_YYYYMMDDHH_001`
 - 頁尾版權資訊 `© 2026 Bruce Yang. All rights reserved.`
 - 主題切換：`system`、`light`、`dark`
+- 設定面板折疊式設計，各群組可獨立展開 / 收合（chevron 指示）
+- 瀏覽器以 `localStorage` 記憶所有設定值與折疊狀態，重新整理後自動還原
 
-### 3.2 重要邏輯說明
+### 3.2 設定面板結構
+
+設定面板分為四個可折疊群組，以 `data-group` 識別：
+
+| 群組 | `data-group` | 預設狀態 | 內容 |
+|------|-------------|---------|------|
+| 常用設定 | `common` | 展開 | 排列方向、輸出寬度、格式、品質 |
+| 輸出設定 | `output` | 收合 | 圓角、間距、背景色 |
+| DPI 設定 | `dpi` | 收合 | 解析度選單 |
+| 分段輸出 | `segmentation` | 收合 | 自動分段、最大高度、切段模式 |
+
+折疊邏輯：`button.group-title[aria-expanded]` 控制相鄰 `div.group-body` 的顯示，CSS 以 `[aria-expanded="false"] + .group-body { display: none !important }` 實作。
+
+設定持久化：每次 `onSettingChange()` 後呼叫 `saveSettings()`，將所有控制項值與各群組折疊狀態序列化為 JSON 存入 `localStorage`（key: `image-merger-settings`）。頁面載入時 `restoreSettings()` 讀取並套用至 DOM，再交由 `readSettings()` / `onSettingChange()` 同步至 `store.settings`。
+
+### 3.3 重要邏輯說明
 
 #### 預覽模式
 

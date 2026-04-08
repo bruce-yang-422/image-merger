@@ -1,9 +1,9 @@
 import {
-  dom, store, THUMB_SIZE, THEME_STORAGE_KEY, systemThemeQuery, showStatus,
+  dom, store, THUMB_SIZE, THEME_STORAGE_KEY, SETTINGS_STORAGE_KEY, systemThemeQuery, showStatus,
 } from './shared.js';
 import {
   applyBackgroundColor, bindSliderPair, doDownload, doMerge, onSettingChange,
-  parseColor, readSettings, schedulePreview,
+  parseColor, readSettings, saveSettings, schedulePreview,
 } from './core.js';
 
 function resolveThemeChoice(themeChoice) {
@@ -315,6 +315,69 @@ function bindSettingEvents() {
   });
 }
 
+function restoreSettings() {
+  let saved;
+  try {
+    const raw = localStorage.getItem(SETTINGS_STORAGE_KEY);
+    if (!raw) return;
+    saved = JSON.parse(raw);
+  } catch {
+    return;
+  }
+
+  if (saved.direction) {
+    dom.directionSel.value = saved.direction;
+    dom.directionButtons.forEach((btn) => btn.classList.toggle('active', btn.dataset.direction === saved.direction));
+  }
+  if (saved.gridCols != null) dom.gridColsInput.value = saved.gridCols;
+  if (saved.spacing != null) { dom.spacingNum.value = saved.spacing; dom.spacingRange.value = saved.spacing; }
+  if (saved.format) dom.formatSel.value = saved.format;
+  if (saved.quality != null) { dom.qualityNum.value = saved.quality; dom.qualityRange.value = saved.quality; }
+  if (saved.background) applyBackgroundColor(saved.background);
+  if (saved.dpi) dom.dpiSelect.value = saved.dpi;
+  if (saved.autoSegment != null) dom.autoSegmentChk.checked = saved.autoSegment;
+  if (saved.maxHeight != null) dom.maxHeightInput.value = saved.maxHeight;
+  if (saved.segmentMode) {
+    dom.segmentModeInput.value = saved.segmentMode;
+    dom.segmentModeButtons.forEach((btn) => btn.classList.toggle('active', btn.dataset.segmentMode === saved.segmentMode));
+  }
+  if (saved.previewMode) {
+    dom.previewModeInput.value = saved.previewMode;
+    dom.previewModeButtons.forEach((btn) => btn.classList.toggle('active', btn.dataset.previewMode === saved.previewMode));
+  }
+  if (saved.sizeCustom) {
+    dom.sizeCustomInput.value = saved.sizeCustom;
+    document.querySelectorAll('.preset-btn:not(.corner-btn)').forEach((btn) => btn.classList.remove('active'));
+  } else if (saved.sizePreset) {
+    document.querySelectorAll('.preset-btn:not(.corner-btn)').forEach((btn) => {
+      btn.classList.toggle('active', btn.dataset.size === saved.sizePreset);
+    });
+  }
+  if (saved.cornerCustom) {
+    dom.cornerCustomInput.value = saved.cornerCustom;
+    document.querySelectorAll('.corner-btn').forEach((btn) => btn.classList.remove('active'));
+  } else if (saved.cornerPreset != null) {
+    document.querySelectorAll('.corner-btn').forEach((btn) => {
+      btn.classList.toggle('active', btn.dataset.corner === saved.cornerPreset);
+    });
+  }
+  if (Array.isArray(saved.collapsedGroups)) {
+    document.querySelectorAll('.group-title[data-group]').forEach((btn) => {
+      btn.setAttribute('aria-expanded', saved.collapsedGroups.includes(btn.dataset.group) ? 'false' : 'true');
+    });
+  }
+}
+
+function bindCollapsibleGroups() {
+  document.querySelectorAll('.group-title[data-group]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const expanded = btn.getAttribute('aria-expanded') === 'true';
+      btn.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+      saveSettings();
+    });
+  });
+}
+
 function bindThemeEvents() {
   dom.themeChips.forEach((chip) => {
     chip.addEventListener('click', () => applyTheme(chip.dataset.themeChoice));
@@ -329,6 +392,8 @@ function initApp() {
   bindToolbarEvents();
   bindSettingEvents();
   bindThemeEvents();
+  bindCollapsibleGroups();
+  restoreSettings();
   applyTheme(localStorage.getItem(THEME_STORAGE_KEY) || document.body.dataset.themeChoice);
   dom.previewCanvas.hidden = true;
   window.addEventListener('resize', schedulePreview);

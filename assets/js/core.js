@@ -1,5 +1,5 @@
 import {
-  dom, store, MAX_PREVIEW_RENDER_PIXELS, SOFT_SEGMENT_HEIGHT, HARD_SEGMENT_HEIGHT, showStatus,
+  dom, store, SETTINGS_STORAGE_KEY, MAX_PREVIEW_RENDER_PIXELS, SOFT_SEGMENT_HEIGHT, HARD_SEGMENT_HEIGHT, showStatus,
 } from './shared.js';
 
 function readSettings() {
@@ -59,6 +59,32 @@ function updateSizeLabel() {
   dom.sizeLabelEl.textContent = labels[store.settings.direction] || labels.vertical;
 }
 
+function saveSettings() {
+  const activeSize = document.querySelector('.preset-btn:not(.corner-btn).active');
+  const activeCorner = document.querySelector('.corner-btn.active');
+  const collapsedGroups = [...document.querySelectorAll('.group-title[data-group][aria-expanded="false"]')]
+    .map((btn) => btn.dataset.group);
+  const saved = {
+    direction: dom.directionSel.value,
+    gridCols: dom.gridColsInput.value,
+    sizePreset: activeSize ? activeSize.dataset.size : null,
+    sizeCustom: dom.sizeCustomInput.value,
+    spacing: dom.spacingNum.value,
+    format: dom.formatSel.value,
+    quality: dom.qualityNum.value,
+    cornerPreset: activeCorner ? activeCorner.dataset.corner : null,
+    cornerCustom: dom.cornerCustomInput.value,
+    background: dom.bgColorPicker.value,
+    dpi: dom.dpiSelect.value,
+    autoSegment: dom.autoSegmentChk.checked,
+    maxHeight: dom.maxHeightInput.value,
+    segmentMode: dom.segmentModeInput.value,
+    previewMode: dom.previewModeInput.value,
+    collapsedGroups,
+  };
+  localStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(saved));
+}
+
 function onSettingChange() {
   readSettings();
   syncDirectionControls();
@@ -67,6 +93,7 @@ function onSettingChange() {
   dom.gridColsField.hidden = store.settings.direction !== 'grid';
   dom.qualityField.hidden = store.settings.format === 'png';
   updateSizeLabel();
+  saveSettings();
   schedulePreview();
 }
 
@@ -431,4 +458,4 @@ function schedulePreview() {
   store.previewTimer = setTimeout(renderPreview, 180);
 }
 
-export { applyBackgroundColor, bindSliderPair, doDownload, doMerge, onSettingChange, parseColor, readSettings, schedulePreview };
+export { applyBackgroundColor, bindSliderPair, doDownload, doMerge, onSettingChange, parseColor, readSettings, saveSettings, schedulePreview };

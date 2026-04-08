@@ -15,12 +15,40 @@
 }
 
 .group-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
   margin: 0 0 8px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
   font-size: 0.82rem;
   font-weight: 700;
   letter-spacing: 0.01em;
   text-transform: none;
   color: var(--ink);
+  cursor: pointer;
+  text-align: left;
+}
+
+.group-title[aria-expanded="false"] {
+  margin-bottom: 0;
+}
+
+.group-chevron {
+  flex-shrink: 0;
+  color: var(--muted);
+  transition: transform 200ms ease;
+}
+
+.group-title[aria-expanded="false"] .group-chevron {
+  transform: rotate(-90deg);
+}
+
+.group-title[aria-expanded="false"] + .group-body {
+  display: none !important;
 }
 
 .setting-grid {
