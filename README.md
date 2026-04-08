@@ -34,7 +34,7 @@
 - 預設檔名格式為 `image_merger_YYYYMMDDHH_001`
 - 高度超過 `10000px` 顯示建議警告
 - 高度超過 `16000px` 時強制啟用自動分段
-- 主題切換：`System 跟隨系統`、`Light 淺色`、`Dark 深色`
+- 主題切換：`System`、`Light`、`Dark` 三種模式，採英文標示與精簡 macOS 風格 segmented control
 - 設定面板採折疊式設計，各群組可獨立展開 / 收合
 - 瀏覽器自動記憶所有設定（含主題、折疊狀態），重新整理後還原
 - 頁尾版權資訊：`© 2026 Bruce Yang. All rights reserved.`
@@ -191,3 +191,4 @@ python cli.py --input-dir ./input --output-dir ./output --output-name product_sh
 ## 授權
 
 本專案採用 [MIT License](./LICENSE)。
+

@@ -56,7 +56,7 @@ image-merger/
 
 - `index.html`：前端主頁面、SEO meta、控制項結構
 - `assets/css/style.css`：CSS 匯入入口與全域基礎規則
-- `assets/css/foundation.css`：頁面骨架、Header、Footer、外層版面
+- `assets/css/foundation.css`：頁面骨架、Header、Footer、外層版面與主題切換器（macOS 風格 segmented control）
 - `assets/css/components.css`：設定面板、表單控制項、按鈕與通用元件（含折疊群組樣式）
 - `assets/css/library.css`：上傳區、圖片清單、拖曳排序列表樣式
 - `assets/css/preview.css`：預覽區、資訊列、警告訊息與操作按鈕
@@ -98,7 +98,7 @@ image-merger/
 - 多段輸出時自動打包為 ZIP 下載
 - 預設檔名格式為 `image_merger_YYYYMMDDHH_001`
 - 頁尾版權資訊 `© 2026 Bruce Yang. All rights reserved.`
-- 主題切換：`system`、`light`、`dark`
+- 主題切換：`system`、`light`、`dark`，介面使用英文標示 `System`、`Light`、`Dark`，並採精簡的 macOS 風格 segmented control
 - 設定面板折疊式設計，各群組可獨立展開 / 收合（chevron 指示）
 - 瀏覽器以 `localStorage` 記憶所有設定值與折疊狀態，重新整理後自動還原
 
@@ -241,3 +241,4 @@ python -m http.server
 - 網頁版已可實際對外使用，進入細修與驗證階段
 - Python 版是可用的輔助工具，但功能範圍仍明顯少於網頁版
 - 文件需要持續跟著實作同步，否則很容易再次失真
+
